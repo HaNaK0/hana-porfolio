@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.13.1", features = ["file_watcher"] }
-hana_prefab = { git = "https://github.com/HaNaK0/hana_prefab.git", tag = "v0.1.0", version = "0.1.0" }
+bevy = { version = "0.13" }
+hana_prefab = "0.1.1"
 
 [target.wasm32-unknown-unknown.dependencies]
 console_log = { version = "1.0.0", features = ["color"] }
