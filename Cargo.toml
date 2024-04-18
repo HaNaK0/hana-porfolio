@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 bevy = { version = "0.13" }
 hana_prefab = "0.1.1"
+thiserror = "1.0.58"
+xml = "0.8.10"
 
 [target.wasm32-unknown-unknown.dependencies]
 console_log = { version = "1.0.0", features = ["color"] }

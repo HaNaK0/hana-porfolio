@@ -304,6 +304,8 @@ dependencies = [
  "bevy",
  "console_log",
  "hana_prefab",
+ "thiserror",
+ "xml",
 ]
 
 [[package]]
@@ -3958,6 +3960,15 @@ name = "xkeysym"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "054a8e68b76250b253f671d1268cb7f1ae089ec35e195b2efb2a4e9a836d0621"
+
+[[package]]
+name = "xml"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5cb5b0add8d5aaa69357818de5f3b60104a62ef345dca81d0947e2148347a7f7"
+dependencies = [
+ "xml-rs",
+]
 
 [[package]]
 name = "xml-rs"
