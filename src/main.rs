@@ -65,16 +65,16 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .with_children(|parent| {
             parent.spawn((
-                AtlasImageBundle {
+                ImageBundle {
                     style: Style {
                         width: Val::Px(190.),
                         height: Val::Px(49.),
                         ..default()
                     },
-                    texture_atlas: texture_atlas_handle.into(),
                     image: UiImage::new(texture_handle),
-                    ..default()
+                    ..Default::default()
                 },
+                TextureAtlas::from(texture_atlas_handle) ,
                 XMLTextureAtlasComponent {
                     name: "blue_button00.png".to_string(),
                     atlas: xml_atlas,

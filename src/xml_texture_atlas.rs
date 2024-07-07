@@ -1,3 +1,5 @@
+use std::future::Future;
+
 use bevy::{
     app::{App, Plugin, Update},
     asset::{Asset, AssetApp, AssetLoader, Assets, AsyncReadExt, Handle},
@@ -6,11 +8,11 @@ use bevy::{
         system::{Query, Res},
     },
     log::warn,
-    math::{Rect, Vec2},
+    math::{URect, UVec2},
     reflect::TypePath,
     render::texture::Image,
     sprite::{TextureAtlas, TextureAtlasLayout},
-    utils::HashMap,
+    utils::{ConditionalSendFuture, HashMap},
 };
 use thiserror::Error;
 use xml::{reader::XmlEvent, EventReader};
@@ -46,18 +48,16 @@ enum XMLTextureAtlasError {
     Io(#[from] std::io::Error),
     #[error("failed to parse xml")]
     XML(#[from] xml::reader::Error),
-    #[error("failed to parse from string to float")]
-    ParseError(#[from] std::num::ParseFloatError),
-    #[error("{0} is missing atrribute {1}")]
+    #[error("failed to parse from string to int")]
+    ParseError(#[from] std::num::ParseIntError),
+    #[error("{0} is missing atribute {1}")]
     MissingAttribute(String, String),
     #[error("failed to discern the directory of the asset")]
     Path,
     #[error("failed to load image")]
-    DirectLoatError(#[from] bevy::asset::LoadDirectError),
+    DirectLoadError(#[from] bevy::asset::LoadDirectError),
     #[error("failed to resolve path for the image")]
     AssetPathParseError(#[from] bevy::asset::ParseAssetPathError),
-    #[error("failed to get loaded image")]
-    ImageGetError,
     #[error("not a texture atlas in file")]
     NoTextureAtlas,
 }
@@ -72,7 +72,7 @@ impl AssetLoader for XMLTextureAtlasLoader {
         reader: &'a mut bevy::asset::io::Reader,
         _settings: &'a Self::Settings,
         load_context: &'a mut bevy::asset::LoadContext,
-    ) -> bevy::utils::BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+    ) -> impl ConditionalSendFuture + Future<Output = Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>> {
         Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
@@ -110,20 +110,18 @@ impl AssetLoader for XMLTextureAtlasLoader {
 
                             let image_path = dir.resolve(&image_path)?;
 
-                            let mut image_context = load_context.begin_labeled_asset();
-
-                            let image = image_context
-                                .load_direct(image_path.clone())
-                                .await?
-                                .take::<Image>()
-                                .ok_or(XMLTextureAtlasError::ImageGetError)?;
+                            let image = load_context
+                                .loader()
+                                .direct()
+                                .load::<Image>(image_path)
+                                .await?;
 
                             let (layout, names) =
-                                parse_texture_atlas(&mut parser, &name, &image.size_f32())?;
+                                parse_texture_atlas(&mut parser, &name, &image.get().size())?;
 
                             load_context.add_loaded_labeled_asset(
                                 "image".to_string(),
-                                image_context.finish(image, None),
+                                image,
                             );
 
                             load_context.add_labeled_asset("layout".to_string(), layout);
@@ -148,7 +146,7 @@ impl AssetLoader for XMLTextureAtlasLoader {
 fn parse_texture_atlas(
     parser: &mut EventReader<&[u8]>,
     parent_name: &xml::name::OwnedName,
-    sheet_size: &Vec2,
+    sheet_size: &UVec2,
 ) -> Result<(TextureAtlasLayout, HashMap<String, usize>), XMLTextureAtlasError> {
     let mut layout = TextureAtlasLayout::new_empty(*sheet_size);
     let mut names = HashMap::new();
@@ -177,7 +175,7 @@ fn parse_texture_atlas(
                                 "Name".to_string(),
                             ))?;
 
-                    let origin = Vec2::new(
+                    let origin = UVec2::new(
                         attributes
                             .get("x")
                             .ok_or(XMLTextureAtlasError::MissingAttribute(
@@ -194,7 +192,7 @@ fn parse_texture_atlas(
                             .parse()?,
                     );
 
-                    let size = Vec2::new(
+                    let size = UVec2::new(
                         attributes
                             .get("width")
                             .ok_or(XMLTextureAtlasError::MissingAttribute(
@@ -211,7 +209,7 @@ fn parse_texture_atlas(
                             .parse()?,
                     );
 
-                    let rect = Rect::from_corners(origin, origin + size);
+                    let rect = URect::from_corners(origin, origin + size);
 
                     names.insert(name.clone(), layout.add_texture(rect));
                 } else {
