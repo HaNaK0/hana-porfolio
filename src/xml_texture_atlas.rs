@@ -46,7 +46,7 @@ struct XMLTextureAtlasLoader;
 enum XMLTextureAtlasError {
     #[error("failed to read XML texture atlas")]
     Io(#[from] std::io::Error),
-    #[error("failed to parse xml")]
+    #[error(transparent)]
     XML(#[from] xml::reader::Error),
     #[error("failed to parse from string to int")]
     ParseError(#[from] std::num::ParseIntError),
@@ -54,7 +54,7 @@ enum XMLTextureAtlasError {
     MissingAttribute(String, String),
     #[error("failed to discern the directory of the asset")]
     Path,
-    #[error("failed to load image")]
+    #[error(transparent)]
     DirectLoadError(#[from] bevy::asset::LoadDirectError),
     #[error("failed to resolve path for the image")]
     AssetPathParseError(#[from] bevy::asset::ParseAssetPathError),
