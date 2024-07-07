@@ -1,6 +1,6 @@
 use bevy::{
     prelude::*,
-    window::{WindowMode, WindowResolution},
+    window::{WindowMode, WindowResized},
     winit::WinitSettings,
 };
 use xml_texture_atlas::{XMLTextureAtlas, XMLTextureAtlasComponent, XMLTextureAtlasPlugin};
@@ -13,13 +13,14 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        mode: WindowMode::Windowed,
-                        resolution: WindowResolution::new(800.0, 700.0),
+                        mode: WindowMode::Fullscreen,
+                        //resolution: WindowResolution::new(1920.0, 1080.0),
                         title: "Hampus Huledals Portfolio".to_string(),
                         resizable: true,
                         decorations: true,
                         transparent: false,
                         focused: true,
+                        fit_canvas_to_parent:true,
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -82,3 +83,4 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ));
         });
 }
+
