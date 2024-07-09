@@ -72,7 +72,9 @@ impl AssetLoader for XMLTextureAtlasLoader {
         reader: &'a mut bevy::asset::io::Reader,
         _settings: &'a Self::Settings,
         load_context: &'a mut bevy::asset::LoadContext,
-    ) -> impl ConditionalSendFuture + Future<Output = Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>> {
+    ) -> impl ConditionalSendFuture
+           + Future<Output = Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>>
+    {
         Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
@@ -119,10 +121,7 @@ impl AssetLoader for XMLTextureAtlasLoader {
                             let (layout, names) =
                                 parse_texture_atlas(&mut parser, &name, &image.get().size())?;
 
-                            load_context.add_loaded_labeled_asset(
-                                "image".to_string(),
-                                image,
-                            );
+                            load_context.add_loaded_labeled_asset("image".to_string(), image);
 
                             load_context.add_labeled_asset("layout".to_string(), layout);
 
