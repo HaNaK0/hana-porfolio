@@ -1,8 +1,5 @@
 use bevy::{
-    color::palettes::css::{MAROON, RED, YELLOW},
     prelude::*,
-    text::TextLayoutInfo,
-    ui::widget::TextFlags,
     window::WindowMode,
     winit::WinitSettings,
 };
