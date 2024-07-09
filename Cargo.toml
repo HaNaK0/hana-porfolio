@@ -1,4 +1,5 @@
 [workspace]
+members = ["markdown"]
 
 [package]
 name = "bevy-porfolio"
