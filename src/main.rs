@@ -40,7 +40,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2dBundle::default());
 
     let header_font = asset_server.load::<Font>("./fonts/Ubuntu/Ubuntu-Bold.ttf");
-    let body_font = asset_server.load::<Font>("./fonts/Ubuntu/Ubuntu-Regular.ttf");
 
     //root node
     commands
