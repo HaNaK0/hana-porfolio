@@ -1,4 +1,9 @@
-use bevy::{prelude::*, window::WindowMode, winit::WinitSettings};
+use bevy::{
+    log::{Level, LogPlugin},
+    prelude::*,
+    window::WindowMode,
+    winit::WinitSettings,
+};
 use hana_bevy_markdown::{MarkdownNodeBundle, MarkdownPlugin};
 
 mod xml_texture_atlas;
@@ -28,7 +33,12 @@ fn main() {
                     mode: AssetMode::Unprocessed,
                     ..Default::default()
                 })
-                .set(ImagePlugin::default_nearest()),
+                .set(ImagePlugin::default_nearest())
+                .set(LogPlugin {
+                    filter: "bevy_porfolio=debug,hana_bevy_markdown=debug,wgpu=error".to_string(),
+                    level: Level::INFO,
+                    ..default()
+                }),
             MarkdownPlugin {},
         ))
         .insert_resource(WinitSettings::desktop_app())
@@ -37,6 +47,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    debug!("Setting up");
     commands.spawn(Camera2dBundle::default());
 
     let header_font = asset_server.load::<Font>("./fonts/Ubuntu/Ubuntu-Bold.ttf");
