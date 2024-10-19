@@ -1,4 +1,5 @@
 [workspace]
+members = ["markdown"]
 
 [package]
 name = "bevy-porfolio"
@@ -12,6 +13,7 @@ bevy = { version = "0.14" }
 hana_prefab = "0.1.1"
 thiserror = "1.0.58"
 xml = "0.8.10"
+hana-bevy-markdown = { path = "markdown" }
 
 [target.wasm32-unknown-unknown.dependencies]
 console_log = { version = "1.0.0", features = ["color"] }

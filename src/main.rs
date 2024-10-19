@@ -1,8 +1,10 @@
 use bevy::{
+    log::{Level, LogPlugin},
     prelude::*,
     window::WindowMode,
     winit::WinitSettings,
 };
+use hana_bevy_markdown::{MarkdownNodeBundle, MarkdownPlugin};
 
 mod xml_texture_atlas;
 
@@ -11,36 +13,44 @@ struct RootNode;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    mode: WindowMode::Windowed,
-                    //resolution: WindowResolution::new(1920.0, 1080.0),
-                    title: "Hampus Huledals Portfolio".to_string(),
-                    resizable: true,
-                    decorations: true,
-                    transparent: false,
-                    focused: true,
-                    fit_canvas_to_parent: true,
+        .add_plugins((
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        mode: WindowMode::Windowed,
+                        //resolution: WindowResolution::new(1920.0, 1080.0),
+                        title: "Hampus Huledals Portfolio".to_string(),
+                        resizable: true,
+                        decorations: true,
+                        transparent: false,
+                        focused: true,
+                        fit_canvas_to_parent: true,
+                        ..Default::default()
+                    }),
                     ..Default::default()
+                })
+                .set(AssetPlugin {
+                    mode: AssetMode::Unprocessed,
+                    ..Default::default()
+                })
+                .set(ImagePlugin::default_nearest())
+                .set(LogPlugin {
+                    filter: "bevy_porfolio=debug,hana_bevy_markdown=debug,wgpu=error".to_string(),
+                    level: Level::INFO,
+                    ..default()
                 }),
-                ..Default::default()
-            })
-            .set(AssetPlugin {
-                mode: AssetMode::Unprocessed,
-                ..Default::default()
-            })
-            .set(ImagePlugin::default_nearest()),))
+            MarkdownPlugin {},
+        ))
         .insert_resource(WinitSettings::desktop_app())
         .add_systems(Startup, setup)
         .run();
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    debug!("Setting up");
     commands.spawn(Camera2dBundle::default());
 
     let header_font = asset_server.load::<Font>("./fonts/Ubuntu/Ubuntu-Bold.ttf");
-    let body_font = asset_server.load::<Font>("./fonts/Ubuntu/Ubuntu-Regular.ttf");
 
     //root node
     commands
@@ -102,10 +112,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 });
 
             // Add Body
-            builder
-                .spawn((
-                    Name::new("Body"),
-                    NodeBundle {
+            builder.spawn((
+                Name::new("Body"),
+                MarkdownNodeBundle {
+                    markdown_asset: asset_server.load("Pages/Home/text.md"),
+                    node: NodeBundle {
                         style: Style {
                             align_self: AlignSelf::Stretch,
                             justify_content: JustifyContent::Center,
@@ -118,49 +129,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         },
                         ..default()
                     },
-                ))
-                .with_children(|builder| {
-                    let header_text = Text::from_sections([
-                        TextSection {
-                            value : "Welcome to my portfolio!".to_string(),
-                            style : TextStyle {
-                                font : header_font.clone(),
-                                font_size : 32.0,
-                                color: Color::srgba(1.0, 1.0, 1.0, 0.6)
-                            }
-                        },
-                    ]).with_justify(JustifyText::Center);
-
-                    builder.spawn(TextBundle {
-                        text: header_text,
-                        style: Style {
-                            margin: UiRect::all(Val::Px(5.0)),
-                            ..default()
-                        },
-                        ..default()
-                    });
-
-                    let body_text = Text::from_sections([
-                        TextSection {
-                            value : "It is made using bevy which is a game engine. You may wonder why i decided to use it? The answer is that i'm a game developer not a web developer and i wanted a project that both was useful and fun to do. Be aware that it is still very much under development".to_string(),
-                            style : TextStyle {
-                                font : body_font.clone(),
-                                font_size : 16.0,
-                                color: Color::srgba(1.0, 1.0, 1.0, 0.6)
-                            }
-                        },
-                    ]).with_justify(JustifyText::Center);
-
-                    builder.spawn(TextBundle {
-                        text: body_text,
-                        style: Style {
-                            max_width: Val::Percent(50.0),
-                            ..default()
-                        },
-                        ..default()
-                    });
-                });
-
-                
+                    ..default()
+                },
+            ));
         });
 }

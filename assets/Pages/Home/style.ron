@@ -1,0 +1,5 @@
+(
+    font: "fonts\\Ubuntu\\Ubuntu-Regular.ttf",
+    body_size: 12.0,
+    body_color: Srgba((red: 1.0,green: 1.0,blue: 1.0,alpha: 1.0))
+)
